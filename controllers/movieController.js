@@ -59,7 +59,10 @@ const createNewMovie = async (req, res) => {
   ) {
     return res.status(400).json({ message: 'All fields are required' })
   }
-
+  // check duplicate
+  const duplicate = await Movie.findOne({ alias }).lean()
+  if (duplicate)
+    return res.status(400).json({ message: 'Alias movie already used!' })
   // Create and store the new user
   const movie = await Movie.create({
     title,
