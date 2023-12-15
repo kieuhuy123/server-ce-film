@@ -1,7 +1,7 @@
 const allowedOrigins = [
   'http://localhost:5000',
   'http://localhost:3000',
-  'https://server-ce-film.onrender.com/'
+  'https://ce-film.onrender.com/'
 ]
 
 const corsOptions = {
