@@ -1,7 +1,8 @@
 const allowedOrigins = [
   'http://localhost:5000',
   'http://localhost:3000',
-  'https://ce-film.onrender.com'
+  'https://ce-film.onrender.com',
+  'https://ce-film.vercel.app'
 ]
 
 const corsOptions = {
