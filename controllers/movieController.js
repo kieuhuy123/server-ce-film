@@ -140,10 +140,28 @@ const deleteMovie = async (req, res) => {
   }
 }
 
+const getRelatedMovies = async (req, res) => {
+  const { alias, genre } = req.body
+  if (!alias || !genre)
+    res.status(400).json({ message: 'genre and alias are required' })
+
+  try {
+    const relatedMovies = await Movie.find({
+      alias: { $nin: [alias] },
+      genre: { $in: genre }
+    })
+    console.log(relatedMovies)
+    res.status(200).json(relatedMovies)
+  } catch (error) {
+    res.status(404).json({ message: 'Get related movies fail' })
+  }
+}
+
 module.exports = {
   createNewMovie,
   getAllMovies,
   getMovie,
   updateMovie,
-  deleteMovie
+  deleteMovie,
+  getRelatedMovies
 }

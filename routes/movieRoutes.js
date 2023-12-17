@@ -14,4 +14,6 @@ router
   .patch(movieController.updateMovie)
   .delete(movieController.deleteMovie)
 
+router.post('/related', movieController.getRelatedMovies)
+
 module.exports = router
