@@ -1,66 +1,75 @@
 const Watchlist = require('../models/Watchlist')
+const { Types } = require('mongoose')
+const { getMovieById } = require('../models/repositories/movie.repo')
 
-const getWatchlists = async (req, res) => {
-  const { user_email } = req.params
+const createUserWatchlist = async ({ userId, movie }) => {
+  const query = { watchlist_userId: userId }
+  const updateOrInsert = {
+    $addToSet: {
+      watchlist_movies: movie
+    }
+  }
+  const options = { upsert: true, new: true }
 
-  if (!user_email)
-    return res.status(400).json({ message: 'User email are required' })
+  return await Watchlist.findOneAndUpdate(query, updateOrInsert, options)
+}
+
+const addToWatchlist = async (req, res) => {
+  const { userId, movieId } = req.body
+
+  if (!movieId || !userId) {
+    return res.status(400).json({ message: 'movieId and userId are required' })
+  }
 
   try {
-    const watchlist = await Watchlist.find({ user_email })
+    const unSelect = ['__v', 'info', 'review', 'trailer', 'video']
+    const movie = await getMovieById({ movieId, unSelect })
+
+    const watchlist = await createUserWatchlist({ userId, movie })
+
+    return res
+      .status(201)
+      .json({ message: 'New watchlist created', data: watchlist })
+  } catch (error) {
+    return res.status(400).json({ message: 'Invalid watchlist data received' })
+  }
+}
+
+const getWatchlists = async (req, res) => {
+  const { userId } = req.query
+
+  if (!userId) return res.status(400).json({ message: 'userId are required' })
+
+  try {
+    const watchlist = await Watchlist.findOne({
+      watchlist_userId: userId
+    }).lean()
     return res.status(200).json(watchlist)
   } catch (error) {
     res.status(404).json({ message: 'Something went wrong' })
   }
 }
 
-const addToWatchlist = async (req, res) => {
-  const { user_email, movie_id, title, alias, rate, image } = req.body
-
-  if (!user_email) return res.status(401).json({ message: 'Unauthorized' })
-
-  // Confirm data
-  if (!movie_id || !alias || !title || !rate || !image) {
-    return res.status(400).json({ message: 'All fields are required' })
-  }
-  // check duplicate movie
-  const duplicate = await Watchlist.findOne({ user_email, movie_id }).lean()
-  if (duplicate)
-    return res.status(400).json({ message: 'Movie already in watchlist' })
-  try {
-    const watchlist = await Watchlist.create({
-      user_email,
-      movie_id,
-      title,
-      alias,
-      rate,
-      image
-    })
-    if (watchlist) {
-      return res
-        .status(201)
-        .json({ data: watchlist, message: 'New watchlist created' })
-    }
-  } catch (error) {
-    return res.status(400).json({ message: 'Invalid watchlist data received' })
-  }
-}
-
 const removeFromWatchlist = async (req, res) => {
-  const { user_email, movie_id } = req.body
+  const { userId, movieId, alias } = req.body
 
-  if (!user_email) return res.status(401).json({ message: 'Unauthorized' })
+  if (!userId) return res.status(401).json({ message: 'Unauthorized' })
 
-  if (!movie_id)
-    return res.status(400).json({ message: 'Movie Id are required' })
-
+  if (!movieId) return res.status(400).json({ message: 'movieId are required' })
+  console.log('alias', alias)
   try {
-    const watchlist = await Watchlist.findOneAndDelete({
-      user_email,
-      movie_id
-    }).exec()
+    const query = { watchlist_userId: new Types.ObjectId(userId) }
 
-    return res.status(200).json({ message: `Movie id:${movie_id} was deleted` })
+    const updateSet = {
+      $pull: {
+        watchlist_movies: {
+          _id: new Types.ObjectId(movieId)
+        }
+      }
+    }
+
+    const removeMovie = await Watchlist.updateOne(query, updateSet)
+    res.status(200).json({ message: `Movie  was deleted`, data: removeMovie })
   } catch (error) {
     return res.status(400).json({ message: 'Some thing went wrong' })
   }

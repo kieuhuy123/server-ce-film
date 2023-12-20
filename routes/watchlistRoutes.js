@@ -5,9 +5,10 @@ const watchlistController = require('../controllers/watchlistController')
 
 router
   .route('/')
+  .get(watchlistController.getWatchlists)
   .post(watchlistController.addToWatchlist)
   .delete(watchlistController.removeFromWatchlist)
 
-router.get('/:user_email', watchlistController.getWatchlists)
+// router.get('/:user_email', watchlistController.getWatchlists)
 
 module.exports = router

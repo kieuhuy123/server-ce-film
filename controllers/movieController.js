@@ -1,12 +1,22 @@
 const Movie = require('../models/Movie')
+const { unGetSelectData } = require('../utils')
 
 const getAllMovies = async (req, res) => {
   const { page } = req.query
   try {
     const limit = 6
     const startIndex = (Number(page) - 1) * limit
+    const sortBy = { _id: -1 }
+    const select = unGetSelectData(['info', '__v', 'genre', 'review'])
+
     const total = await Movie.countDocuments({})
-    const movies = await Movie.find().limit(limit).skip(startIndex)
+
+    const movies = await Movie.find()
+      .sort(sortBy)
+      .limit(limit)
+      .skip(startIndex)
+      .select(select)
+      .lean()
 
     res.json({
       data: movies,
@@ -87,8 +97,7 @@ const createNewMovie = async (req, res) => {
 const updateMovie = async (req, res) => {
   const { alias } = req.params
 
-  const { title, type, genre, rate, image, trailer, review, video, info } =
-    req.body
+  const { title, type, genre, image, trailer, review, video, info } = req.body
 
   // Confirm data
   if (
@@ -96,7 +105,6 @@ const updateMovie = async (req, res) => {
     !type ||
     !alias ||
     !title ||
-    !rate ||
     !image ||
     !trailer ||
     !review ||
@@ -115,7 +123,6 @@ const updateMovie = async (req, res) => {
     movie.type = type
     movie.genre = genre
     movie.alias = alias
-    movie.rate = rate
     movie.image = image
     movie.trailer = trailer
     movie.review = review
