@@ -3,12 +3,13 @@ const { Schema } = mongoose
 
 const MovieSchema = new Schema(
   {
-    title: { type: String, require: true, index: true },
-    alias: { type: String, require: true, index: true },
-    rate: { type: Number, default: 7 },
+    title: { type: String, require: true },
+    alias: { type: String, require: true },
     genre: { type: [String], require: true },
     type: { type: String, require: true },
     image: { type: String, require: true },
+    rateCount: { type: Number, default: 0 },
+    rateValue: { type: Number, default: 0 },
     trailer: String,
     review: String,
     video: String,
@@ -24,5 +25,7 @@ const MovieSchema = new Schema(
     timestamps: true
   }
 )
+
+MovieSchema.index({ alias: 'text' })
 
 module.exports = mongoose.model('Movie', MovieSchema)

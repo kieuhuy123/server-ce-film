@@ -37,6 +37,7 @@ app.use('/user', require('./routes/userRoutes'))
 app.use('/auth', require('./routes/authRoutes'))
 app.use('/movie', require('./routes/movieRoutes'))
 app.use('/watchlist', require('./routes/watchlistRoutes'))
+app.use('/rate', require('./routes/rateRoutes'))
 
 const server = app.listen(port, () => {
   console.log(`server run on port ${port}`)
