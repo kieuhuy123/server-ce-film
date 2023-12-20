@@ -56,7 +56,7 @@ const removeFromWatchlist = async (req, res) => {
   if (!userId) return res.status(401).json({ message: 'Unauthorized' })
 
   if (!movieId) return res.status(400).json({ message: 'movieId are required' })
-  console.log('alias', alias)
+
   try {
     const query = { watchlist_userId: new Types.ObjectId(userId) }
 

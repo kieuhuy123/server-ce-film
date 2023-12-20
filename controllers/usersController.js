@@ -4,7 +4,6 @@ const saltRounds = 10
 const jwt = require('jsonwebtoken')
 
 const createNewUser = async (req, res) => {
-  console.log(req?.body)
   if (!req?.body?.email || !req?.body?.password) {
     return res.status(400).json({ message: 'Email and password are required.' })
   }
@@ -23,7 +22,6 @@ const createNewUser = async (req, res) => {
       email: email,
       password: hashPwd
     })
-    console.log(result)
 
     const accessToken = jwt.sign(
       {

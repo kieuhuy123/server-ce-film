@@ -157,7 +157,7 @@ const getRelatedMovies = async (req, res) => {
       alias: { $nin: [alias] },
       genre: { $in: genre }
     })
-    console.log(relatedMovies)
+
     res.status(200).json(relatedMovies)
   } catch (error) {
     res.status(404).json({ message: 'Get related movies fail' })
