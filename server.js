@@ -26,14 +26,6 @@ app.use(compression())
 
 // Routes
 
-// app.get('/', (req, res) => {
-//   const strCompress = 'Hello world'
-
-//   return res.status(200).json({
-//     message: 'Hello world',
-//     metadata: strCompress.repeat(100000)
-//   })
-// })
 app.use('/', require('./routes'))
 app.use('/user', require('./routes/userRoutes'))
 app.use('/auth', require('./routes/authRoutes'))
@@ -46,6 +38,22 @@ const server = app.listen(port, () => {
 })
 
 // handle error
+app.use((req, res, next) => {
+  const error = new Error('Not Found')
+  console.log('error', error)
+  error.status = 404
+  next(error)
+})
+
+app.use((error, req, res, next) => {
+  const statusCode = error.status || 500
+  console.log('statusCode', statusCode)
+  return res.status(statusCode).json({
+    status: 'error',
+    code: statusCode,
+    message: error.message || 'Internal Server Error'
+  })
+})
 
 // run server
 process.on('SIGINT', () => {
