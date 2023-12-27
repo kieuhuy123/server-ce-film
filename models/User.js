@@ -4,8 +4,8 @@ const { Schema } = mongoose
 const UserSchema = new Schema(
   {
     email: { type: String, require: true },
-    roles: { type: [Number], default: [2002] },
-    password: { type: String, require: true }
+    password: { type: String, require: true },
+    roles: { type: [Number], default: [2002] }
   },
   {
     timestamps: true

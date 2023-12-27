@@ -2,13 +2,14 @@ const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 const jwt = require('jsonwebtoken')
+const rolesList = require('../config/rolesList')
 
 const createNewUser = async (req, res) => {
   if (!req?.body?.email || !req?.body?.password) {
     return res.status(400).json({ message: 'Email and password are required.' })
   }
   const { email, password } = req.body
-  //   check for duplicate usernames in the db
+  //   check for duplicate email in the db
   const duplicate = await User.findOne({ email: email }).lean()
   if (duplicate) {
     return res.status(409).json({ message: 'Email address already in use' })
@@ -20,7 +21,8 @@ const createNewUser = async (req, res) => {
     // create and store new user
     const result = await User.create({
       email: email,
-      password: hashPwd
+      password: hashPwd,
+      roles: [rolesList.User]
     })
 
     const accessToken = jwt.sign(

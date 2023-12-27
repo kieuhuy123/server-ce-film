@@ -18,21 +18,23 @@ app.use(cors(corsOptions))
 // checkOverload()
 
 // Middleware
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(morgan('dev'))
 app.use(helmet())
 app.use(compression())
 
 // Routes
-app.get('/', (req, res) => {
-  const strCompress = 'Hello world'
 
-  return res.status(200).json({
-    message: 'Hello world',
-    metadata: strCompress.repeat(100000)
-  })
-})
+// app.get('/', (req, res) => {
+//   const strCompress = 'Hello world'
+
+//   return res.status(200).json({
+//     message: 'Hello world',
+//     metadata: strCompress.repeat(100000)
+//   })
+// })
+app.use('/', require('./routes'))
 app.use('/user', require('./routes/userRoutes'))
 app.use('/auth', require('./routes/authRoutes'))
 app.use('/movie', require('./routes/movieRoutes'))
