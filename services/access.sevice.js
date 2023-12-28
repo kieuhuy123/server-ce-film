@@ -2,22 +2,69 @@
 
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
-const saltRounds = 10
-const jwt = require('jsonwebtoken')
 const rolesList = require('../config/rolesList')
 const crypto = require('node:crypto')
-const KeyTokenService = require('./keyToken.sevice')
+const KeyTokenService = require('./keyToken.service')
 const { createTokenPair } = require('../utils/auth')
 const { getInfoData } = require('../utils')
 const {
   ConflictRequestError,
-  BadRequestError
+  BadRequestError,
+  AuthFailureError
 } = require('../core/error.response')
+const { findByEmail } = require('./user.service')
 
+const saltRounds = 10
 class AccessService {
+  /* 
+      1 - check email in dbs
+      2 - match password
+      3 - create keys and save
+      4 - generate tokens
+      5 - get data return login
+  */
+  static login = async ({ email, password, refreshToken = null }) => {
+    // 1.
+    const foundUser = await findByEmail({ email })
+    if (!foundUser) throw new BadRequestError('User not registered')
+
+    // 2.
+    const match = await bcrypt.compare(password, foundUser.password)
+    if (!match) throw new AuthFailureError('Authentication error')
+
+    // 3.
+    const privateKey = crypto.randomBytes(64).toString('hex')
+    const publicKey = crypto.randomBytes(64).toString('hex')
+
+    // 4. created token pair
+    const { _id: userId } = foundUser
+
+    const tokens = await createTokenPair(
+      { userId, email, roles: foundUser.roles },
+      publicKey,
+      privateKey
+    )
+
+    const keyUser = await KeyTokenService.createKeyToken({
+      userId,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken
+    })
+
+    if (!keyUser) {
+      throw new BadRequestError('keyUser error')
+    }
+
+    return {
+      user: getInfoData({ paths: ['_id', 'email'], object: foundUser }),
+      tokens
+    }
+  }
+
   static register = async ({ email, password }) => {
     //  check for duplicate email in the db
-    const duplicate = await User.findOne({ email: email }).lean()
+    const duplicate = await findByEmail({ email })
     if (duplicate) {
       throw new ConflictRequestError('Error: User already register')
     }
@@ -35,8 +82,6 @@ class AccessService {
       const privateKey = crypto.randomBytes(64).toString('hex')
       const publicKey = crypto.randomBytes(64).toString('hex')
 
-      console.log({ privateKey, publicKey })
-
       const keyUser = await KeyTokenService.createKeyToken({
         userId: newUser._id,
         publicKey,
@@ -47,15 +92,13 @@ class AccessService {
         throw new BadRequestError('keyUser error')
       }
 
-      console.log(`keyUser::`, keyUser)
-
       // created token pair
-
       const tokens = await createTokenPair(
         { userId: newUser._id, email, roles: newUser.roles },
         publicKey,
         privateKey
       )
+
       console.log(`Created Token Success::`, tokens)
 
       return {
@@ -65,6 +108,14 @@ class AccessService {
     }
 
     throw new BadRequestError('Register error')
+  }
+
+  static logout = async keyStore => {
+    console.log('keyStore::', keyStore)
+    const delKey = await KeyTokenService.removeKeyById(keyStore._id)
+    console.log('delKey', delKey)
+
+    return delKey
   }
 }
 
