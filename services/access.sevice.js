@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt')
 const rolesList = require('../config/rolesList')
 const crypto = require('node:crypto')
 const KeyTokenService = require('./keyToken.service')
-const { createTokenPair } = require('../utils/auth')
+const { createTokenPair, verifyJWT } = require('../utils/auth')
 const { getInfoData } = require('../utils')
 const {
   ConflictRequestError,
@@ -99,8 +99,6 @@ class AccessService {
         privateKey
       )
 
-      console.log(`Created Token Success::`, tokens)
-
       return {
         user: getInfoData({ paths: ['_id', 'email'], object: newUser }),
         tokens
@@ -111,11 +109,107 @@ class AccessService {
   }
 
   static logout = async keyStore => {
-    console.log('keyStore::', keyStore)
     const delKey = await KeyTokenService.removeKeyById(keyStore._id)
-    console.log('delKey', delKey)
 
     return delKey
+  }
+
+  /* 
+    1 - Check token used?
+  */
+  static handleRefreshToken = async refreshToken => {
+    // check xem token nay da duoc su dung chua?
+    const foundToken = await KeyTokenService.findByRefreshTokenUsed(
+      refreshToken
+    )
+
+    // neu co
+    if (foundToken) {
+      // decode de xem info
+      const { userId, email } = await verifyJWT(
+        refreshToken,
+        foundToken.privateKey
+      )
+
+      // xoa tat ca token trong keyStore
+      await KeyTokenService.deleteKeyById(userId)
+      throw new BadRequestError('Something wrong happen!! Please reLogin')
+    }
+
+    // neu khong => Oke
+
+    const holderToken = await KeyTokenService.findByRefreshToken(refreshToken)
+    if (!holderToken) throw new AuthFailureError('User not registered!')
+
+    // verifyToken
+    const { userId, email } = await verifyJWT(
+      refreshToken,
+      holderToken.privateKey
+    )
+    console.log('[2]--', { userId, email })
+    // check userId
+    const foundUser = await findByEmail({ email })
+    if (!foundUser) throw new AuthFailureError('User not registered')
+
+    // Create 1 cap token moi
+    const tokens = await createTokenPair(
+      { userId, email },
+      holderToken.publicKey,
+      holderToken.privateKey
+    )
+
+    // update token
+    await holderToken.updateOne({
+      $set: {
+        refreshToken: tokens.refreshToken
+      },
+      $addToSet: {
+        refreshTokenUsed: refreshToken // da duoc su dung de lay token moi
+      }
+    })
+
+    return {
+      user: { userId, email },
+      tokens
+    }
+  }
+
+  static handleRefreshTokenV2 = async ({ refreshToken, user, keyStore }) => {
+    const { userId, email } = user
+
+    if (keyStore.refreshTokenUsed.includes(refreshToken)) {
+      await KeyTokenService.deleteKeyById(userId)
+      throw new BadRequestError('Something wrong happen!! Please reLogin')
+    }
+
+    if (keyStore.refreshToken !== refreshToken) {
+      throw new AuthFailureError('User not registered!')
+    }
+
+    const foundUser = await findByEmail({ email })
+    if (!foundUser) throw new AuthFailureError('User not registered')
+
+    // Create 1 cap token moi
+    const tokens = await createTokenPair(
+      { userId, email, roles: foundUser.roles },
+      keyStore.publicKey,
+      keyStore.privateKey
+    )
+
+    // update token
+    await keyStore.updateOne({
+      $set: {
+        refreshToken: tokens.refreshToken
+      },
+      $addToSet: {
+        refreshTokenUsed: refreshToken // da duoc su dung de lay token moi
+      }
+    })
+
+    return {
+      user,
+      tokens
+    }
   }
 }
 

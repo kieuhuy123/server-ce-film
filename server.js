@@ -6,6 +6,7 @@ const port = process.env.PORT || 5000
 
 const morgan = require('morgan')
 const helmet = require('helmet')
+const cookieParser = require('cookie-parser')
 const compression = require('compression')
 const { countConnect, checkOverload } = require('./helpers/check-connect')
 const corsOptions = require('./config/corsOptions')
@@ -20,10 +21,10 @@ app.use(cors(corsOptions))
 // Middleware
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use(cookieParser())
 app.use(morgan('dev'))
 app.use(helmet())
 app.use(compression())
-
 // Routes
 
 app.use('/', require('./routes'))

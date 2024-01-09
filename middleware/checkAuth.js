@@ -77,7 +77,9 @@ const authentication = asyncHandler(async (req, res, next) => {
   if (!keyStore) throw new NotFoundError('Not found keyStore')
 
   // 3.
-  const accessToken = req.headers[HEADER.AUTHORIZATION]
+
+  const accessToken = req.headers[HEADER.AUTHORIZATION].split(' ')[1]
+
   if (!accessToken) throw new AuthFailureError('Invalid accessToken')
 
   // 4.
@@ -87,9 +89,86 @@ const authentication = asyncHandler(async (req, res, next) => {
       throw new AuthFailureError('Invalid userId')
 
     req.keyStore = keyStore
-    console.log('keyStore checkAuth', keyStore)
+
     return next()
   } catch (error) {
+    throw error
+  }
+})
+
+const authenticationV2 = asyncHandler(async (req, res, next) => {
+  /*
+      1 - Check userId missing??
+      2 - Get accessToken
+      3 - Verify Token
+      4 - Check user in dbs
+      5 - Check keyStore with this userId?
+      6 - OK all => return next
+  */
+
+  // 1.
+  const userId = req.headers[HEADER.CLIENT_ID]
+  if (!userId) throw new AuthFailureError('Invalid userId')
+
+  // 2.
+  const keyStore = await findByUserId(userId)
+  if (!keyStore) {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      sameSite: 'None',
+      secure: true
+    })
+    throw new NotFoundError('Not found keyStore')
+  }
+
+  // 3.
+
+  if (req.url === '/user/refreshToken' && req.cookies) {
+    console.log('request::', req.url)
+    try {
+      const cookies = req.cookies
+      console.log('cookies::', cookies)
+      const refreshToken = cookies.jwt
+      console.log('refreshToken::', refreshToken)
+      const decodeUser = JWT.verify(refreshToken, keyStore.privateKey)
+
+      if (userId !== decodeUser.userId)
+        throw new AuthFailureError('Invalid userId')
+
+      req.keyStore = keyStore
+      req.user = decodeUser
+      req.refreshToken = refreshToken
+      return next()
+    } catch (error) {
+      console.log('error', error)
+      throw error
+    }
+  }
+
+  const accessToken = req.headers[HEADER.AUTHORIZATION].split(' ')[1]
+
+  if (!accessToken) throw new AuthFailureError('Invalid accessToken')
+
+  // 4.
+  try {
+    const decodeUser = JWT.verify(accessToken, keyStore.publicKey)
+    if (userId !== decodeUser.userId)
+      throw new AuthFailureError('Invalid userId')
+
+    req.keyStore = keyStore
+
+    return next()
+  } catch (error) {
+    if (error.name == 'TokenExpiredError') {
+      // return res.status(200).json({
+      //   code: 401,
+      //   message: 'jwt expired',
+      //   status: 'error'
+      // })
+      console.log('token het han ne')
+      throw new AuthFailureError('jwt expired')
+    }
+    console.log('error ne', error)
     throw error
   }
 })
@@ -97,5 +176,6 @@ const authentication = asyncHandler(async (req, res, next) => {
 module.exports = {
   apiKey,
   permission,
-  authentication
+  authentication,
+  authenticationV2
 }
