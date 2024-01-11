@@ -124,12 +124,11 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   // 3.
 
   if (req.url === '/user/refreshToken' && req.cookies) {
-    console.log('request::', req.url)
     try {
       const cookies = req.cookies
-      console.log('cookies::', cookies)
+
       const refreshToken = cookies.jwt
-      console.log('refreshToken::', refreshToken)
+      if (!refreshToken) throw new AuthFailureError('Invalid refreshToken')
       const decodeUser = JWT.verify(refreshToken, keyStore.privateKey)
 
       if (userId !== decodeUser.userId)
@@ -140,7 +139,11 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
       req.refreshToken = refreshToken
       return next()
     } catch (error) {
-      console.log('error', error)
+      if (error.name == 'TokenExpiredError') {
+        // logout and reload
+        throw new AuthFailureError('refreshToken expired')
+      }
+
       throw error
     }
   }
@@ -160,15 +163,9 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
     return next()
   } catch (error) {
     if (error.name == 'TokenExpiredError') {
-      // return res.status(200).json({
-      //   code: 401,
-      //   message: 'jwt expired',
-      //   status: 'error'
-      // })
-      console.log('token het han ne')
-      throw new AuthFailureError('jwt expired')
+      throw new AuthFailureError('accessToken expired')
     }
-    console.log('error ne', error)
+
     throw error
   }
 })

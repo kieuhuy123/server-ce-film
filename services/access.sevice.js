@@ -109,7 +109,7 @@ class AccessService {
   }
 
   static logout = async keyStore => {
-    const delKey = await KeyTokenService.removeKeyById(keyStore._id)
+    const delKey = await KeyTokenService.deleteKeyByUserId(keyStore.userId)
 
     return delKey
   }
@@ -132,7 +132,7 @@ class AccessService {
       )
 
       // xoa tat ca token trong keyStore
-      await KeyTokenService.deleteKeyById(userId)
+      await KeyTokenService.deleteKeyByUserId(userId)
       throw new BadRequestError('Something wrong happen!! Please reLogin')
     }
 
@@ -178,7 +178,8 @@ class AccessService {
     const { userId, email } = user
 
     if (keyStore.refreshTokenUsed.includes(refreshToken)) {
-      await KeyTokenService.deleteKeyById(userId)
+      await KeyTokenService.deleteKeyByUserId(userId)
+      // logout and reload
       throw new BadRequestError('Something wrong happen!! Please reLogin')
     }
 
