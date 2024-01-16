@@ -12,6 +12,11 @@ router
 
 router.route('/:alias').get(asyncHandler(movieController.getMovieByAlias))
 
-router.patch('/:movieId', asyncHandler(movieController.updateMovie))
+router
+  .route('/:movieId')
+  .patch(asyncHandler(movieController.updateMovie))
+  .delete(asyncHandler(movieController.deleteMovie))
+
+router.post('/related', asyncHandler(movieController.getRelatedMovie))
 
 module.exports = router

@@ -8,7 +8,8 @@ const movieModel = require('../models/movie.model')
 const {
   findAllMovies,
   findMovieByAlias,
-  updateMovieById
+  updateMovieById,
+  findMovieByGenre
 } = require('../models/repositories/movie.repo')
 const { unGetSelectData } = require('../utils')
 
@@ -19,7 +20,7 @@ class MovieService {
     const total = await movieModel.countDocuments({})
 
     const movies = await findAllMovies({ limit, sort, page, select })
-
+    if (!movies) throw new BadRequestError('get movies error')
     return {
       movies: movies,
       currentPage: Number(page),
@@ -104,6 +105,24 @@ class MovieService {
 
     if (!updateMovie) throw new BadRequestError(`update Movie ${title} error`)
     return updateMovie
+  }
+
+  static deleteMovie = async ({ movieId }) => {
+    if (!movieId) throw new BadRequestError('movieId is required')
+
+    const movieDelete = await movieModel.findByIdAndDelete(movieId)
+    if (!movieDelete) throw new BadRequestError('Delete Movie error')
+
+    return movieDelete
+  }
+
+  static getRelatedMovies = async ({ movieId, genre }) => {
+    if (!movieId || !genre)
+      throw new BadRequestError('movieId and genre are required!')
+
+    const movie = await findMovieByGenre({ movieId, genre })
+    if (!movie) throw new BadRequestError('Get movie related error')
+    return movie
   }
 }
 

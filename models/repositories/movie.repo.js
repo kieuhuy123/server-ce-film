@@ -35,9 +35,19 @@ const updateMovieById = async ({ movieId, bodyUpdate, isNew = true }) => {
   return await movieModel.findByIdAndUpdate(movieId, bodyUpdate, { new: isNew })
 }
 
+const findMovieByGenre = async ({ movieId, genre }) => {
+  return await movieModel
+    .find({
+      _id: { $nin: [movieId] },
+      genre: { $in: genre }
+    })
+    .lean()
+    .exec()
+}
 module.exports = {
   getMovieById,
   findAllMovies,
   findMovieByAlias,
-  updateMovieById
+  updateMovieById,
+  findMovieByGenre
 }

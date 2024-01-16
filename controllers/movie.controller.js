@@ -32,6 +32,20 @@ class MovieController {
       metadata: await MovieService.updateMovie({ ...req.params }, req.body)
     }).send(res)
   }
+
+  deleteMovie = async (req, res, next) => {
+    new Ok({
+      message: 'Delete movies OK',
+      metadata: await MovieService.deleteMovie(req.params)
+    }).send(res)
+  }
+
+  getRelatedMovie = async (req, res, next) => {
+    new Ok({
+      message: 'Get related movies OK',
+      metadata: await MovieService.getRelatedMovies(req.body)
+    }).send(res)
+  }
 }
 
 module.exports = new MovieController()
