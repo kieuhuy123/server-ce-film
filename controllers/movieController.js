@@ -1,4 +1,4 @@
-const Movie = require('../models/Movie')
+const Movie = require('../models/movie.model')
 const { unGetSelectData } = require('../utils')
 
 const getAllMovies = async (req, res) => {
@@ -17,6 +17,7 @@ const getAllMovies = async (req, res) => {
       .skip(startIndex)
       .select(select)
       .lean()
+      .exec()
 
     res.json({
       data: movies,

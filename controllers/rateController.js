@@ -1,5 +1,5 @@
 const Rate = require('../models/Rate')
-const Movie = require('../models/Movie')
+const Movie = require('../models/movie.model')
 const { unGetSelectData } = require('../utils')
 
 const rateMovie = async (req, res) => {

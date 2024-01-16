@@ -28,8 +28,8 @@ app.use(compression())
 // Routes
 
 app.use('/', require('./routes'))
-app.use('/user', require('./routes/userRoutes'))
-app.use('/auth', require('./routes/authRoutes'))
+// app.use('/user', require('./routes/userRoutes'))
+// app.use('/auth', require('./routes/authRoutes'))
 app.use('/movie', require('./routes/movieRoutes'))
 app.use('/watchlist', require('./routes/watchlistRoutes'))
 app.use('/rate', require('./routes/rateRoutes'))

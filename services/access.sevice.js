@@ -10,7 +10,8 @@ const { getInfoData } = require('../utils')
 const {
   ConflictRequestError,
   BadRequestError,
-  AuthFailureError
+  AuthFailureError,
+  ForbiddenError
 } = require('../core/error.response')
 const { findByEmail } = require('./user.service')
 
@@ -26,7 +27,7 @@ class AccessService {
   static login = async ({ email, password, refreshToken = null }) => {
     // 1.
     const foundUser = await findByEmail({ email })
-    if (!foundUser) throw new BadRequestError('User not registered')
+    if (!foundUser) throw new ForbiddenError('User not registered')
 
     // 2.
     const match = await bcrypt.compare(password, foundUser.password)
@@ -53,7 +54,7 @@ class AccessService {
     })
 
     if (!keyUser) {
-      throw new BadRequestError('keyUser error')
+      throw new ForbiddenError('keyUser error')
     }
 
     return {
@@ -89,7 +90,7 @@ class AccessService {
       })
 
       if (!keyUser) {
-        throw new BadRequestError('keyUser error')
+        throw new ForbiddenError('keyUser error')
       }
 
       // created token pair
@@ -133,7 +134,7 @@ class AccessService {
 
       // xoa tat ca token trong keyStore
       await KeyTokenService.deleteKeyByUserId(userId)
-      throw new BadRequestError('Something wrong happen!! Please reLogin')
+      throw new ForbiddenError('Something wrong happen!! Please reLogin')
     }
 
     // neu khong => Oke
@@ -180,7 +181,7 @@ class AccessService {
     if (keyStore.refreshTokenUsed.includes(refreshToken)) {
       await KeyTokenService.deleteKeyByUserId(userId)
       // logout and reload
-      throw new BadRequestError('Something wrong happen!! Please reLogin')
+      throw new ForbiddenError('Something wrong happen!! Please reLogin')
     }
 
     if (keyStore.refreshToken !== refreshToken) {
