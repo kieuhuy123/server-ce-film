@@ -11,6 +11,7 @@ router
   .post(asyncHandler(movieController.createMovie))
 
 router.route('/:alias').get(asyncHandler(movieController.getMovieByAlias))
+router.route('/type/:type').get(asyncHandler(movieController.getMovieByType))
 
 router
   .route('/:movieId')

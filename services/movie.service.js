@@ -124,6 +124,30 @@ class MovieService {
     if (!movie) throw new BadRequestError('Get movie related error')
     return movie
   }
+
+  static getMovieByType = async ({
+    type,
+    page = 1,
+    limit = 6,
+    sort = 'ctime'
+  }) => {
+    if (!type) throw new BadRequestError('type movie is required')
+    console.log('type film', type)
+    console.log('page', page)
+    const select = unGetSelectData(['info', '__v', 'genre', 'review'])
+    const total = await movieModel.countDocuments({})
+    const filter = { type }
+    const movies = await findAllMovies({ filter, limit, sort, page, select })
+
+    if (!movies) throw new BadRequestError('get movies error')
+
+    return {
+      movies: movies,
+      currentPage: Number(page),
+      totalMovies: total,
+      numberOfPages: Math.ceil(total / limit)
+    }
+  }
 }
 
 module.exports = MovieService
