@@ -53,6 +53,13 @@ class MovieController {
       metadata: await MovieService.getMovieByType(req.params, req.query)
     }).send(res)
   }
+
+  getMovieByGenre = async (req, res, next) => {
+    new Ok({
+      message: 'Get movies OK',
+      metadata: await MovieService.getMovieByGenre(req.params, req.query)
+    }).send(res)
+  }
 }
 
 module.exports = new MovieController()

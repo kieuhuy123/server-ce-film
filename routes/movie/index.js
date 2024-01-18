@@ -12,6 +12,7 @@ router
 
 router.route('/:alias').get(asyncHandler(movieController.getMovieByAlias))
 router.route('/type/:type').get(asyncHandler(movieController.getMovieByType))
+router.route('/genre/:genre').get(asyncHandler(movieController.getMovieByGenre))
 
 router
   .route('/:movieId')

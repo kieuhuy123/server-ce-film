@@ -45,23 +45,10 @@ const findMovieByGenre = async ({ movieId, genre }) => {
     .exec()
 }
 
-const findMovieByType = async ({ filter, limit, sort, page, select }) => {
-  const skip = (Number(page) - 1) * limit
-  const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
-
-  return await movieModel
-    .find(filter)
-    .sort(sortBy)
-    .skip(skip)
-    .limit(limit)
-    .select(select)
-    .lean()
-}
 module.exports = {
   getMovieById,
   findAllMovies,
   findMovieByAlias,
   updateMovieById,
-  findMovieByGenre,
-  findMovieByType
+  findMovieByGenre
 }
