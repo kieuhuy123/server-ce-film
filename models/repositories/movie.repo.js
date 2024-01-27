@@ -36,11 +36,13 @@ const updateMovieById = async ({ movieId, bodyUpdate, isNew = true }) => {
 }
 
 const findMovieByGenre = async ({ movieId, genre }) => {
+  const limit = 8
   return await movieModel
     .find({
       _id: { $nin: [movieId] },
       genre: { $in: genre }
     })
+    .limit(limit)
     .lean()
     .exec()
 }

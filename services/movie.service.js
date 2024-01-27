@@ -125,19 +125,24 @@ class MovieService {
     return movie
   }
 
-  static getMovieByType = async ({
-    type,
-    page = 1,
-    limit = 6,
-    sort = 'ctime'
-  }) => {
+  static getMovieByType = async (
+    { type },
+    { page = 1, limit = 3, sort = 'ctime' }
+  ) => {
+    console.log('type', type)
     if (!type) throw new BadRequestError('type movie is required')
 
     const select = unGetSelectData(['info', '__v', 'genre', 'review'])
-    const total = await movieModel.countDocuments({})
     const filter = { type }
-    const movies = await findAllMovies({ filter, limit, sort, page, select })
-
+    const total = await movieModel.find(filter).count()
+    const movies = await findAllMovies({
+      filter,
+      limit,
+      sort,
+      page,
+      select
+    })
+    console.log('page ne', page)
     if (!movies) throw new BadRequestError('get movies error')
 
     return {
@@ -148,17 +153,15 @@ class MovieService {
     }
   }
 
-  static getMovieByGenre = async ({
-    genre,
-    page = 1,
-    limit = 6,
-    sort = 'ctime'
-  }) => {
+  static getMovieByGenre = async (
+    { genre },
+    { page = 1, limit = 8, sort = 'ctime' }
+  ) => {
     if (!genre) throw new BadRequestError('genre movie is required')
 
     const select = unGetSelectData(['info', '__v', 'genre', 'review'])
-    const total = await movieModel.countDocuments({})
     const filter = { genre }
+    const total = await movieModel.find(filter).count()
     const movies = await findAllMovies({ filter, limit, sort, page, select })
 
     if (!movies) throw new BadRequestError('get movies error')
