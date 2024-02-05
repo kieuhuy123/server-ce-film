@@ -9,7 +9,8 @@ const {
   findAllMovies,
   findMovieByAlias,
   updateMovieById,
-  findMovieByGenre
+  findMovieByGenre,
+  findMovieByKey
 } = require('../models/repositories/movie.repo')
 const { unGetSelectData } = require('../utils')
 
@@ -127,7 +128,7 @@ class MovieService {
 
   static getMovieByType = async (
     { type },
-    { page = 1, limit = 3, sort = 'ctime' }
+    { page = 1, limit = 8, sort = 'ctime' }
   ) => {
     console.log('type', type)
     if (!type) throw new BadRequestError('type movie is required')
@@ -172,6 +173,15 @@ class MovieService {
       totalMovies: total,
       numberOfPages: Math.ceil(total / limit)
     }
+  }
+
+  static getMovieByKey = async ({ keyword, limit = 20 }) => {
+    const select = unGetSelectData(['info', '__v', 'genre'])
+
+    const movies = await findMovieByKey({ keyword, limit, select })
+    if (!movies) throw new BadRequestError('get movies error')
+
+    return movies
   }
 }
 

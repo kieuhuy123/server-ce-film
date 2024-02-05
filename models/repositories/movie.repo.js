@@ -47,10 +47,20 @@ const findMovieByGenre = async ({ movieId, genre }) => {
     .exec()
 }
 
+const findMovieByKey = async ({ keyword, limit, select }) => {
+  return await movieModel
+    .find({
+      alias: { $regex: `(?i)${keyword}` }
+    })
+    .select(select)
+    .limit(limit)
+    .lean()
+}
 module.exports = {
   getMovieById,
   findAllMovies,
   findMovieByAlias,
   updateMovieById,
-  findMovieByGenre
+  findMovieByGenre,
+  findMovieByKey
 }

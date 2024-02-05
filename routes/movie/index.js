@@ -14,6 +14,8 @@ router.route('/:alias').get(asyncHandler(movieController.getMovieByAlias))
 router.route('/type/:type').get(asyncHandler(movieController.getMovieByType))
 router.route('/genre/:genre').get(asyncHandler(movieController.getMovieByGenre))
 
+router.route('/search').post(asyncHandler(movieController.getMovieByKeyword))
+
 router
   .route('/:movieId')
   .patch(asyncHandler(movieController.updateMovie))
