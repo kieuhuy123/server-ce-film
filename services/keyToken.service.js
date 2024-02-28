@@ -2,6 +2,7 @@
 
 const keyTokenModel = require('../models/keyToken.model')
 const { Types } = require('mongoose')
+const { convertToObjectId } = require('../utils')
 class KeyTokenService {
   static createKeyToken = async ({
     userId,
@@ -43,7 +44,7 @@ class KeyTokenService {
   }
 
   static findByUserId = async userId => {
-    return await keyTokenModel.findOne({ userId: new Types.ObjectId(userId) })
+    return await keyTokenModel.findOne({ userId: convertToObjectId(userId) })
   }
 
   static findByRefreshTokenUsed = async refreshToken => {
