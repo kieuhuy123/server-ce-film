@@ -1,7 +1,7 @@
 'use strict'
 
 const commentModal = require('../models/comment.model')
-const { convertToObjectId, getSelectData } = require('../utils')
+const { convertToObjectId, unGetSelectData } = require('../utils')
 const { NotFoundError } = require('../core/error.response')
 const { getMovieById } = require('../models/repositories/movie.repo')
 /*
@@ -14,6 +14,7 @@ class CommentService {
   static createComment = async ({
     movieId,
     userId,
+    userEmail,
     content,
     parentCommentId = null
   }) => {
@@ -27,6 +28,7 @@ class CommentService {
     const comment = new commentModal({
       comment_movie_id: movieId,
       comment_user_id: userId,
+      comment_user_email: userEmail,
       comment_content: content,
       comment_parent_id: parentCommentId
     })
@@ -91,12 +93,7 @@ class CommentService {
     limit = 50,
     offset = 0 //skip
   }) => {
-    const select = getSelectData([
-      'comment_left',
-      'comment_right',
-      'comment_content',
-      'comment_parent_id'
-    ])
+    const select = unGetSelectData(['__v'])
 
     if (parentCommentId) {
       const parent = await commentModal.findById(parentCommentId)
@@ -105,6 +102,7 @@ class CommentService {
       const comments = await commentModal
         .find({
           comment_movie_id: convertToObjectId(movieId),
+          // comment_parent_id: parentCommentId
           comment_left: { $gt: parent.comment_left },
           comment_right: { $lte: parent.comment_right }
         })

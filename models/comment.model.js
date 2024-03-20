@@ -9,7 +9,12 @@ const COLLECTION_NAME = 'Comments'
 const commentSchema = new Schema(
   {
     comment_movie_id: { type: Schema.Types.ObjectId, ref: 'Movie' },
-    comment_user_id: { type: Number, default: 1 },
+    comment_user_id: {
+      type: mongoose.Types.ObjectId,
+      require: true,
+      ref: 'User'
+    },
+    comment_user_email: { type: String },
     comment_content: { type: String, default: 'text' },
     comment_left: { type: Number, default: 0 },
     comment_right: { type: Number, default: 0 },
