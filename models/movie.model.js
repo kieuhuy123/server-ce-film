@@ -3,13 +3,13 @@ const { Schema } = mongoose
 
 const MovieSchema = new Schema(
   {
-    title: { type: String, require: true },
-    alias: { type: String, require: true },
-    genre: { type: [String], require: true },
-    type: { type: String, require: true },
-    image: { type: String, require: true },
-    rateCount: { type: Number, default: 0 },
-    rateValue: { type: Number, default: 0 },
+    title: { type: String, required: true },
+    alias: { type: String, required: true },
+    genre: { type: [String], required: true },
+    type: { type: String, required: true },
+    image: { type: String, required: true },
+    rating_count: { type: Number, default: 0 },
+    total_rating_value: { type: Number, default: 0 },
     trailer: String,
     review: String,
     video: String,
