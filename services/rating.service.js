@@ -45,7 +45,7 @@ class RatingService {
     // create rating
     const rating = await Rating.create({
       rating_user_id: userId,
-      rating_movie_id: movieId,
+      rating_movie: movieId,
       rating_value: ratingValue
     })
 
@@ -64,13 +64,14 @@ class RatingService {
 
     if (!updateMovie) throw new BadRequestError('Update rating movie error')
 
-    return rating
+    return rating.populate('rating_movie')
   }
 
   static getListRating = async ({ userId }) => {
     const select = unGetSelectData(['__v', 'userId'])
 
     const rating = await Rating.find({ rating_user_id: userId })
+      .populate('rating_movie')
       .select(select)
       .lean()
     if (!rating) throw new BadRequestError('Get list rating error')
@@ -87,13 +88,13 @@ class RatingService {
     const rating = await Rating.findOneAndUpdate(
       {
         rating_user_id: userId,
-        rating_movie_id: movieId
+        rating_movie: movieId
       },
       {
         rating_value: ratingValue
       },
       { new: true }
-    )
+    ).populate('rating_movie')
     if (!rating) throw new BadRequestError('Update rating error')
 
     const query = { _id: movieId }

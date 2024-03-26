@@ -7,7 +7,7 @@ const COLLECTION_NAME = 'Ratings'
 const RatingSchema = new Schema(
   {
     rating_user_id: { type: mongoose.Types.ObjectId, required: true },
-    rating_movie_id: {
+    rating_movie: {
       type: mongoose.Types.ObjectId,
       required: true,
       ref: 'Movie'
@@ -33,6 +33,6 @@ const RatingSchema = new Schema(
   }
 )
 
-RatingSchema.index({ rating_user_id: 1, rating_movie_id: 1 })
+RatingSchema.index({ rating_user_id: 1, rating_movie: 1 })
 
 module.exports = mongoose.model(DOCUMENT_NAME, RatingSchema)
