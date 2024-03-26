@@ -9,6 +9,7 @@ router.use(apiKey)
 // check permission
 router.use(permission('0000'))
 
+router.use('/v1/api/watchlist', require('./watchlist'))
 router.use('/v1/api/ratingMovie', require('./rating'))
 router.use('/v1/api/movie', require('./movie'))
 router.use('/v1/api/comment', require('./comment'))
