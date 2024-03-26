@@ -11,7 +11,7 @@ const commentSchema = new Schema(
     comment_movie_id: { type: Schema.Types.ObjectId, ref: 'Movie' },
     comment_user_id: {
       type: mongoose.Types.ObjectId,
-      require: true,
+      required: true,
       ref: 'User'
     },
     comment_user_email: { type: String },

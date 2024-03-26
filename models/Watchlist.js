@@ -3,8 +3,8 @@ const { Schema } = mongoose
 
 const WatchlistSchema = new Schema(
   {
-    watchlist_userId: { type: mongoose.Types.ObjectId, require: true },
-    watchlist_movies: { type: Array, require: true, default: [] }
+    watchlist_userId: { type: mongoose.Types.ObjectId, required: true },
+    watchlist_movies: { type: Array, required: true, default: [] }
     /* 
     [
       {
