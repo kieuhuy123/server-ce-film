@@ -15,7 +15,10 @@ class WatchlistService {
         watchlist_movies: movie
       }
     }
-    const options = { upsert: true, new: true }
+    const options = {
+      upsert: true,
+      new: true
+    }
 
     return await Watchlist.findOneAndUpdate(query, updateOrInsert, options)
   }
@@ -28,13 +31,13 @@ class WatchlistService {
       userId,
       movie
     })
+
     if (!watchlist) throw new BadRequestError('Add movie to watchlist error')
 
     return watchlist
   }
 
   static getWatchlist = async ({ userId }) => {
-    console.log('userId', userId)
     const watchlist = await Watchlist.findOne({
       watchlist_user_id: userId
     }).lean()
@@ -56,6 +59,7 @@ class WatchlistService {
     }
 
     const watchlist = await Watchlist.updateOne(query, updateSet)
+
     if (!watchlist)
       throw new BadRequestError('Remove movie from watchlist error')
     return watchlist

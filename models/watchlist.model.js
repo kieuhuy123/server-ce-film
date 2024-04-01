@@ -6,8 +6,12 @@ const COLLECTION_NAME = 'Watchlists'
 
 const WatchlistSchema = new Schema(
   {
-    watchlist_user_id: { type: mongoose.Types.ObjectId, required: true },
-    watchlist_movies: { type: Array, required: true, default: [] },
+    watchlist_user_id: {
+      type: mongoose.Types.ObjectId,
+      required: true,
+      ref: 'User'
+    },
+    watchlist_movies: { type: Array, required: true, default: [] }
     /* 
     [
       {
@@ -20,8 +24,6 @@ const WatchlistSchema = new Schema(
       }
     ]
     */
-    watchlist_has_outlier: { type: Boolean, required: true, default: false },
-    watchlist_count: { type: Number, required: true, default: 0 }
   },
   {
     timestamps: true,
