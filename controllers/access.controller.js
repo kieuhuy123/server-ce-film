@@ -1,5 +1,6 @@
 'use strict'
 
+const { BadRequestError } = require('../core/error.response')
 const { Created, Ok } = require('../core/success.response')
 const AccessService = require('../services/access.sevice')
 
@@ -17,6 +18,8 @@ class AccessController {
   }
 
   login = async (req, res, next) => {
+    const { email } = req.body
+    if (!email) throw new BadRequestError('email missing')
     const data = await AccessService.login(req.body)
     const { tokens } = data
 
