@@ -4,7 +4,6 @@ const app = express()
 const cors = require('cors')
 const port = process.env.PORT || 5000
 
-const morgan = require('morgan')
 const helmet = require('helmet')
 const cookieParser = require('cookie-parser')
 const compression = require('compression')
@@ -16,9 +15,19 @@ const myLoggerLog = require('./logger/myLogger.log')
 
 connectDB()
 
-//
+app.use(cors(corsOptions))
+// countConnect()
+// checkOverload()
+
+// Middleware
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(cookieParser())
+app.use(helmet())
+app.use(compression())
+
+// Logs
 app.use((req, res, next) => {
-  console.log('req', req.body)
   const requestId = req.headers['x-request-id']
   req.requestId = requestId ? requestId : uuidv4()
   myLoggerLog.log(`input params ::${req.method}`, [
@@ -29,23 +38,11 @@ app.use((req, res, next) => {
 
   next()
 })
-
-app.use(cors(corsOptions))
-// countConnect()
-// checkOverload()
-
-// Middleware
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
-app.use(cookieParser())
-app.use(morgan('dev'))
-app.use(helmet())
-app.use(compression())
 // Routes
 
 app.use('/', require('./routes'))
-app.use('/watchlist', require('./routes/watchlistRoutes'))
-app.use('/rate', require('./routes/rateRoutes'))
+// app.use('/watchlist', require('./routes/watchlistRoutes'))
+// app.use('/rate', require('./routes/rateRoutes'))
 
 const server = app.listen(port, () => {
   console.log(`server run on port ${port}`)

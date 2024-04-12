@@ -45,7 +45,7 @@ const permission = permission => {
         message: 'permission denied '
       })
     }
-    console.log('permission::', req.objKey.permissions)
+    // console.log('permission::', req.objKey.permissions)
     const validPermission = req.objKey.permissions.includes(permission)
 
     if (!validPermission) {
