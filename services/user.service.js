@@ -1,15 +1,10 @@
 'use strict'
 
 const User = require('../models/User')
+const { getSelectData } = require('../utils')
 
-const findByEmail = async ({
-  email,
-  select = {
-    email: 1,
-    password: 2,
-    roles: 1
-  }
-}) => {
+const findByEmail = async ({ email }) => {
+  const select = getSelectData(['email', 'roles', 'googleId'])
   return await User.findOne({ email }).select(select).lean()
 }
 

@@ -10,7 +10,8 @@ const { authenticationV2 } = require('../../middleware/checkAuth')
 router.post('/user/register', asyncHandler(accessController.register))
 // login
 router.post('/user/login', asyncHandler(accessController.login))
-
+// login with google
+router.post('/user/googleLogin', asyncHandler(accessController.googleLogin))
 // authentication
 router.use(authenticationV2)
 // logout

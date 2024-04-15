@@ -63,6 +63,91 @@ class AccessService {
     }
   }
 
+  /*
+  1. Check email in dbs
+    - Neu da co email ma chua co googleId => ERROR: duplicate
+    - Neu chua co email => register and login
+    - Neu da co email va co googleId => login
+  2 - create keys and save
+  3 - generate tokens
+  4 - get data return login
+    
+  */
+  static googleLogin = async ({ email, googleId }) => {
+    // 1. Check email
+    const foundUser = await findByEmail({ email })
+
+    if (foundUser && !foundUser.googleId) {
+      throw new ConflictRequestError('Error: Email already register')
+    }
+
+    // Đã có tk login bằng google
+    if (foundUser) {
+      // 2.
+      const privateKey = crypto.randomBytes(64).toString('hex')
+      const publicKey = crypto.randomBytes(64).toString('hex')
+      // 3.
+      const { _id: userId } = foundUser
+
+      const tokens = await createTokenPair(
+        { userId, email, roles: foundUser.roles },
+        publicKey,
+        privateKey
+      )
+
+      const keyUser = await KeyTokenService.createKeyToken({
+        userId,
+        publicKey,
+        privateKey,
+        refreshToken: tokens.refreshToken
+      })
+
+      if (!keyUser) {
+        throw new ForbiddenError('keyUser error')
+      }
+      // 4.
+      return {
+        user: getInfoData({ paths: ['_id', 'email'], object: foundUser }),
+        tokens
+      }
+    }
+
+    // Chưa có email được đăng ký
+    const newUser = await User.create({
+      email,
+      roles: [rolesList.User],
+      googleId: googleId
+    })
+
+    if (!newUser) throw new BadRequestError('Register with google error')
+
+    // 2.
+    const privateKey = crypto.randomBytes(64).toString('hex')
+    const publicKey = crypto.randomBytes(64).toString('hex')
+    // 3.
+    const tokens = await createTokenPair(
+      { userId: newUser._id, email, roles: newUser.roles },
+      publicKey,
+      privateKey
+    )
+
+    const keyUser = await KeyTokenService.createKeyToken({
+      userId: newUser._id,
+      publicKey,
+      privateKey,
+      refreshToken: tokens.refreshToken
+    })
+
+    if (!keyUser) {
+      throw new ForbiddenError('keyUser error')
+    }
+
+    return {
+      user: getInfoData({ paths: ['_id', 'email'], object: newUser }),
+      tokens
+    }
+  }
+
   static register = async ({ email, password }) => {
     //  check for duplicate email in the db
     const duplicate = await findByEmail({ email })
@@ -82,23 +167,22 @@ class AccessService {
     if (newUser) {
       const privateKey = crypto.randomBytes(64).toString('hex')
       const publicKey = crypto.randomBytes(64).toString('hex')
-
-      const keyUser = await KeyTokenService.createKeyToken({
-        userId: newUser._id,
-        publicKey,
-        privateKey
-      })
-
-      if (!keyUser) {
-        throw new ForbiddenError('keyUser error')
-      }
-
       // created token pair
       const tokens = await createTokenPair(
         { userId: newUser._id, email, roles: newUser.roles },
         publicKey,
         privateKey
       )
+      const keyUser = await KeyTokenService.createKeyToken({
+        userId: newUser._id,
+        publicKey,
+        privateKey,
+        refreshToken: tokens.refreshToken
+      })
+
+      if (!keyUser) {
+        throw new ForbiddenError('keyUser error')
+      }
 
       return {
         user: getInfoData({ paths: ['_id', 'email'], object: newUser }),
