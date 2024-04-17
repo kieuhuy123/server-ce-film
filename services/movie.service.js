@@ -69,6 +69,7 @@ class MovieService {
       title,
       alias,
       type,
+      genre,
       image,
       trailer,
       review,
