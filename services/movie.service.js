@@ -51,14 +51,12 @@ class MovieService {
   }) => {
     // Confirm data
     if (
-      !genre ||
+      !genre.length ||
       !type ||
       !alias ||
       !title ||
       !image ||
-      !trailer ||
       !review ||
-      !video ||
       !info
     ) {
       throw new BadRequestError('All fields are required')
@@ -70,6 +68,7 @@ class MovieService {
     const movie = await movieModel.create({
       title,
       alias,
+      type,
       image,
       trailer,
       review,
@@ -87,16 +86,7 @@ class MovieService {
       bodyUpdate
 
     // Confirm data
-    if (
-      !genre.length ||
-      !type ||
-      !alias ||
-      !image ||
-      !trailer ||
-      !review ||
-      !video ||
-      !info
-    ) {
+    if (!genre.length || !type || !alias || !image || !review || !info) {
       throw new BadRequestError('All fields are required')
     }
 
