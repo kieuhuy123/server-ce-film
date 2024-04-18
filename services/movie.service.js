@@ -10,7 +10,8 @@ const {
   findMovieByAlias,
   updateMovieById,
   findMovieByGenre,
-  findMovieByKey
+  findMovieByKey,
+  findFeaturedMovie
 } = require('../models/repositories/movie.repo')
 const { unGetSelectData } = require('../utils')
 
@@ -47,7 +48,9 @@ class MovieService {
     trailer,
     review,
     video,
-    info
+    info,
+    isFeatured,
+    featuredImage
   }) => {
     // Confirm data
     if (
@@ -74,7 +77,9 @@ class MovieService {
       trailer,
       review,
       video,
-      info
+      info,
+      is_featured: isFeatured,
+      featured_image: featuredImage
     })
 
     if (!movie) throw new BadRequestError('create new Movie error')
@@ -82,9 +87,35 @@ class MovieService {
     return movie
   }
 
-  static updateMovie = async ({ movieId }, bodyUpdate) => {
-    const { title, type, genre, image, trailer, alias, review, video, info } =
-      bodyUpdate
+  static updateMovie = async (
+    { movieId },
+    {
+      title,
+      type,
+      alias,
+      genre,
+      image,
+      trailer,
+      review,
+      video,
+      info,
+      is_featured,
+      featured_image
+    }
+  ) => {
+    const bodyUpdate = {
+      title,
+      type,
+      alias,
+      genre,
+      image,
+      trailer,
+      review,
+      video,
+      info,
+      is_featured,
+      featured_image
+    }
 
     // Confirm data
     if (!genre.length || !type || !alias || !image || !review || !info) {
@@ -121,7 +152,6 @@ class MovieService {
     { type },
     { page = 1, limit = 8, sort = 'ctime' }
   ) => {
-    console.log('type', type)
     if (!type) throw new BadRequestError('type movie is required')
 
     const select = unGetSelectData(['info', '__v', 'genre', 'review'])
@@ -134,7 +164,7 @@ class MovieService {
       page,
       select
     })
-    console.log('page ne', page)
+
     if (!movies) throw new BadRequestError('get movies error')
 
     return {
@@ -171,6 +201,13 @@ class MovieService {
 
     const movies = await findMovieByKey({ keyword, limit, select })
     if (!movies) throw new BadRequestError('get movies error')
+
+    return movies
+  }
+
+  static getFeaturedMovie = async () => {
+    const movies = await findFeaturedMovie()
+    if (!movies) throw new BadRequestError('get featured movies error')
 
     return movies
   }

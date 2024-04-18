@@ -56,11 +56,16 @@ const findMovieByKey = async ({ keyword, limit, select }) => {
     .limit(limit)
     .lean()
 }
+
+const findFeaturedMovie = async () => {
+  return await movieModel.find({ is_featured: true }).lean()
+}
 module.exports = {
   getMovieById,
   findAllMovies,
   findMovieByAlias,
   updateMovieById,
   findMovieByGenre,
-  findMovieByKey
+  findMovieByKey,
+  findFeaturedMovie
 }

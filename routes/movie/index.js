@@ -10,6 +10,7 @@ router
   .get(asyncHandler(movieController.getAllMovies))
   .post(asyncHandler(movieController.createMovie))
 
+router.route('/featured').get(asyncHandler(movieController.getFeaturedMovie))
 router.route('/:alias').get(asyncHandler(movieController.getMovieByAlias))
 router.route('/type/:type').get(asyncHandler(movieController.getMovieByType))
 router.route('/genre/:genre').get(asyncHandler(movieController.getMovieByGenre))

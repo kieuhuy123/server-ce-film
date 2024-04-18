@@ -19,7 +19,9 @@ const MovieSchema = new Schema(
       publish: Number,
       directors: [String],
       actors: [String]
-    }
+    },
+    is_featured: Boolean,
+    featured_image: String
   },
   {
     timestamps: true

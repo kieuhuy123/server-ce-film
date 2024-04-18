@@ -67,6 +67,13 @@ class MovieController {
       metadata: await MovieService.getMovieByKey(req.body)
     }).send(res)
   }
+
+  getFeaturedMovie = async (req, res, next) => {
+    new Ok({
+      message: 'Get featured movies OK',
+      metadata: await MovieService.getFeaturedMovie()
+    }).send(res)
+  }
 }
 
 module.exports = new MovieController()
