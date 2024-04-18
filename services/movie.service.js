@@ -16,7 +16,7 @@ const {
 const { unGetSelectData } = require('../utils')
 
 class MovieService {
-  static getAllMovies = async ({ page = 1, limit = 6, sort = 'ctime' }) => {
+  static getAllMovies = async ({ page = 1, limit = 12, sort = 'ctime' }) => {
     const select = unGetSelectData(['info', '__v', 'genre', 'review'])
 
     const total = await movieModel.countDocuments({})
@@ -150,7 +150,7 @@ class MovieService {
 
   static getMovieByType = async (
     { type },
-    { page = 1, limit = 8, sort = 'ctime' }
+    { page = 1, limit = 12, sort = 'ctime' }
   ) => {
     if (!type) throw new BadRequestError('type movie is required')
 
@@ -177,7 +177,7 @@ class MovieService {
 
   static getMovieByGenre = async (
     { genre },
-    { page = 1, limit = 8, sort = 'ctime' }
+    { page = 1, limit = 12, sort = 'ctime' }
   ) => {
     if (!genre) throw new BadRequestError('genre movie is required')
 
@@ -196,7 +196,7 @@ class MovieService {
     }
   }
 
-  static getMovieByKey = async ({ keyword, limit = 20 }) => {
+  static getMovieByKey = async ({ keyword, limit = 12 }) => {
     const select = unGetSelectData(['info', '__v', 'genre'])
 
     const movies = await findMovieByKey({ keyword, limit, select })
