@@ -10,14 +10,24 @@ const compression = require('compression')
 const { countConnect, checkOverload } = require('./helpers/check-connect')
 const { v4: uuidv4 } = require('uuid')
 const corsOptions = require('./config/corsOptions')
-const connectDB = require('./config/dbConn')
+// const connectDB = require('./dbs/init.mongodb')
 const myLoggerLog = require('./logger/myLogger.log')
 
-connectDB()
+// test pub/sub redis
 
-app.use(cors(corsOptions))
+// const redis = require('redis')
+// const client = redis.createClient()
+
+// require('./tests/inventory.test')
+// const productTest = require('./tests/product.test')
+// productTest.purchaseProduct('product:001', 10)
+
+// init db
+require('./dbs/init.mongodb')
 // countConnect()
 // checkOverload()
+
+app.use(cors(corsOptions))
 
 // Middleware
 app.use(express.urlencoded({ extended: true }))
@@ -38,11 +48,9 @@ app.use((req, res, next) => {
 
   next()
 })
-// Routes
+// init Routes
 
 app.use('/', require('./routes'))
-// app.use('/watchlist', require('./routes/watchlistRoutes'))
-// app.use('/rate', require('./routes/rateRoutes'))
 
 const server = app.listen(port, () => {
   console.log(`server run on port ${port}`)
