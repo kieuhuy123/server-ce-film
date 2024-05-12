@@ -4,6 +4,7 @@ const commentModal = require('../models/comment.model')
 const { convertToObjectId, unGetSelectData } = require('../utils')
 const { NotFoundError } = require('../core/error.response')
 const { getMovieById } = require('../models/repositories/movie.repo')
+const { pushNotiToSystem } = require('./notification.service')
 /*
     key feature: Comment service
     + add comment [User]
@@ -62,6 +63,19 @@ class CommentService {
           $inc: { comment_left: 2 }
         }
       )
+
+      // push notification to system collection
+      pushNotiToSystem({
+        type: 'COMMENT-001',
+        receivedId: 1,
+        senderId: userId,
+        options: {
+          user_email: userEmail
+        }
+      })
+        .then(rs => console.log('result', rs))
+        .catch(err => console.log(err))
+      //
     } else {
       const maxRightValue = await commentModal.findOne(
         {
