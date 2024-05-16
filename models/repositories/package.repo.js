@@ -5,11 +5,15 @@ const {
 } = require('../../utils')
 const { packageModel, packagePlanModel } = require('../package.model')
 
+const getPackages = async ({ unselect }) => {
+  return await packageModel.find().select(unGetSelectData(unselect)).lean()
+}
 const getPackagePlanById = async PlanId => {
   return await packagePlanModel
     .findOne({ _id: convertToObjectId(PlanId) })
     .lean()
 }
+
 const checkPackagePlanByServer = async PlanId => {
   const foundPackagePlan = await getPackagePlanById(PlanId)
 
@@ -22,4 +26,4 @@ const checkPackagePlanByServer = async PlanId => {
   }
 }
 
-module.exports = { checkPackagePlanByServer }
+module.exports = { checkPackagePlanByServer, getPackages }

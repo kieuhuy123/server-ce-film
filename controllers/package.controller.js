@@ -17,6 +17,13 @@ class PackageController {
       metadata: await PackageService.createPackagePlan(req.body)
     }).send(res)
   }
+
+  getPackages = async (req, res, next) => {
+    new Ok({
+      message: 'Get Packages  OK',
+      metadata: await PackageService.getPackages(req.body)
+    }).send(res)
+  }
 }
 
 module.exports = new PackageController()

@@ -6,6 +6,7 @@ const {
 } = require('../core/error.response')
 
 const { packageModel, packagePlanModel } = require('../models/package.model')
+const { getPackages } = require('../models/repositories/package.repo')
 const { convertToObjectId } = require('../utils')
 
 class PackageService {
@@ -53,6 +54,19 @@ class PackageService {
     )
 
     return newPackagePlan
+  }
+
+  static getPackages = async () => {
+    const unselect = [
+      '__v',
+      'package_plan.createdAt',
+      'package_plan.updatedAt',
+      'package_plan.__v'
+    ]
+    const packages = await getPackages({ unselect })
+    if (!packages) throw new BadRequestError('Get packages error')
+
+    return packages
   }
 }
 module.exports = PackageService
