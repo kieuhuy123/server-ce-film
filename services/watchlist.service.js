@@ -6,6 +6,9 @@ const { BadRequestError } = require('../core/error.response')
 const { unGetSelectData } = require('../utils')
 const { getMovieById } = require('../models/repositories/movie.repo')
 const { Types } = require('mongoose')
+const { getRedis } = require('../dbs/init.redis')
+
+const { instanceConnect: redisClient } = getRedis()
 
 class WatchlistService {
   static createUserWatchlist = async ({ userId, movie }) => {
@@ -34,10 +37,23 @@ class WatchlistService {
 
     if (!watchlist) throw new BadRequestError('Add movie to watchlist error')
 
+    // Update cache in redis
+    await redisClient.json.del(`watchlist:${userId}`)
+    await redisClient.json.set(`watchlist:${userId}`, '$', watchlist)
+    await redisClient.expire(`watchlist:${userId}`, 60 * 60)
+
     return watchlist
   }
 
   static getWatchlist = async ({ userId }) => {
+    const dataCached = await redisClient.json.get(
+      'watchlist:663ddab661580524674a3fa2'
+    )
+
+    if (dataCached) {
+      return dataCached
+    }
+
     const watchlist = await Watchlist.findOne({
       watchlist_user_id: userId
     }).lean()
@@ -57,11 +73,22 @@ class WatchlistService {
         }
       }
     }
+    const options = {
+      new: true
+    }
 
-    const watchlist = await Watchlist.updateOne(query, updateSet)
+    const watchlist = await Watchlist.findOneAndUpdate(
+      query,
+      updateSet,
+      options
+    )
 
     if (!watchlist)
       throw new BadRequestError('Remove movie from watchlist error')
+    // Update cache in redis
+    await redisClient.json.del(`watchlist:${userId}`)
+    await redisClient.json.set(`watchlist:${userId}`, '$', watchlist)
+    await redisClient.expire(`watchlist:${userId}`, 60 * 60)
     return watchlist
   }
 }

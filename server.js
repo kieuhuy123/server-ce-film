@@ -14,13 +14,21 @@ const corsOptions = require('./config/corsOptions')
 const myLoggerLog = require('./logger/myLogger.log')
 
 // test pub/sub redis
+const initRedis = require('./dbs/init.redis')
+initRedis.initRedis()
 
-// const redis = require('redis')
-// const client = redis.createClient()
+const { getRedis } = require('./dbs/init.redis')
+const { instanceConnect: redisClient } = getRedis()
 
-// require('./tests/inventory.test')
-// const productTest = require('./tests/product.test')
-// productTest.purchaseProduct('product:001', 10)
+const ConnectRedis = async () => {
+  try {
+    await redisClient.connect()
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+ConnectRedis()
 
 // init db
 require('./dbs/init.mongodb')
