@@ -31,7 +31,7 @@ class AccessService {
 
     // 2.
     const match = await bcrypt.compare(password, foundUser.password)
-    if (!match) throw new AuthFailureError('Authentication error')
+    if (!match) throw new AuthFailureError('Password is incorrect')
 
     // 3.
     const privateKey = crypto.randomBytes(64).toString('hex')

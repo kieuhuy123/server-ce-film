@@ -155,6 +155,7 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   // 4.
   try {
     const decodeUser = JWT.verify(accessToken, keyStore.publicKey)
+
     if (userId !== decodeUser.userId)
       throw new AuthFailureError('Invalid userId')
 
@@ -165,7 +166,9 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
     if (error.name == 'TokenExpiredError') {
       throw new AuthFailureError('accessToken expired')
     }
-
+    if (error.name == 'JsonWebTokenError') {
+      throw new AuthFailureError('Invalid accessToken')
+    }
     throw error
   }
 })
